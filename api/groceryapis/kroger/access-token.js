@@ -1,5 +1,6 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const db = require('../../db');
 const authCheck = require('../../middleware/auth-check');
 const { base64 } = require('../../utils');
 
@@ -8,6 +9,7 @@ const router = express.Router();
 router.get('/', authCheck, async (req, res) => {
   const { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI } = process.env;
   const { code } = req.body;
+  const { userId } = req.userData;
 
   const tokenUrl = process.env.KROGER_BASE_URL + 'connect/oauth2/token';
 
@@ -24,8 +26,22 @@ router.get('/', authCheck, async (req, res) => {
         'redirect_uri': REDIRECT_URI
       })
     });
+
     const data = await response.json()
-    return res.status(200).json(data)
+
+    // populate kroger_details table
+    const { refresh_token, access_token } = data;
+
+    db.query('INSERT INTO kroger_details (userid, refresh_token, access_token) VALUES ($1, $2, $3);',
+      [userId, refresh_token, access_token],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          return res.status(400).json({ message: 'Failed to fetch user', error })
+        } else {
+          return res.status(200).json({ message: 'Successfully received kroger access token' });
+        }
+      })
   } catch (error) {
     return res.status(400).json(error);
   }
