@@ -31,12 +31,13 @@ module.exports = {
 
     db.query(
       'SELECT * FROM users as u\
-       INNER JOIN kroger_details as k \
+       LEFT JOIN kroger_details as k \
        ON u.userid=k.userid \
        WHERE u.userid=$1;',
       [userid],
       (error, result) => {
         if (error) {
+          console.error(error);
           return res.status(400).json({ message: 'Failed to fetch user' })
         }
 
