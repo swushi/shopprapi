@@ -6,7 +6,7 @@ const { base64 } = require('../../utils');
 
 const router = express.Router();
 
-router.get('/', authCheck, async (req, res) => {
+router.post('/', authCheck, async (req, res) => {
   const { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI } = process.env;
   const { code } = req.body;
   const { userId } = req.userData;
