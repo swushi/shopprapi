@@ -39,7 +39,7 @@ router.post('/', authCheck, async (req, res) => {
           console.log(error);
           return res.status(400).json({ message: 'Failed to fetch user', error })
         } else {
-          return res.status(200).json({ message: 'Successfully received kroger access token' });
+          return res.status(200).json({ userId, refresh_token, access_token });
         }
       })
   } catch (error) {
